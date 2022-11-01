@@ -1,9 +1,10 @@
 <html>
   <body>
-    <h1>Hello World - Primeiros passos na programação</h1>
+    <h1>App de Controle de Finanças</h1>
     <script>
 
       class Release {
+
         constructor(category, type, value) {
           if (type !== "revenue" && type !== "expense") {
             throw new Error("Lançamento Inválido: Tipo deve ser receita ou despesa")
@@ -39,75 +40,110 @@
         return income
       }
 
-      function calculateBalance(month, currentBalance, releases) {
-        console.log(month);
-        balance = currentBalance
+      function distributeExpenses(releases, total) {
+        expenseDistribution = []
         for (release of releases) {
-          if (release.type === "revenue") {
-            balance += release.value
-          } 
-          if (release.type === "expense") {
-            balance -= release.value
+          if (release.type === 'expense') {
+            percentage = round((release.value / total) * 100)
+            expenseDistribution.push({ categoria: release.category, percentual: percentage })
           }
         }
-        isNegative = balance < 0
-        if (isNegative) {
-          interest = calculateInterest(balance)
-          balance = round(balance + interest)
-        } else {
-          income = calculateIncome(balance)
-          balance = round(balance + income)
+        return expenseDistribution
+      }
+
+      function calculateBalance(month, currentBalance, releases) { // calcula saldo
+        console.log(month);
+        /* 
+          balance = saldo
+          interest = juros
+          income = rendimentos
+          revenue = receita
+          expense = despesas
+        */
+
+        monthTotal = {
+          balance: 0, 
+          currentBalance, 
+          interest: 0, 
+          income: 0, 
+          revenue: 0, 
+          expense: 0,
+          expenseDistribution: []
         }
-        return balance // calcula saldo
+        
+        monthTotal.balance = currentBalance
+
+        for (release of releases) {
+          if (release.type === "revenue") {
+            monthTotal.balance += release.value
+            monthTotal.revenue += release.value
+          } 
+          if (release.type === "expense") {
+            monthTotal.balance -= release.value
+            monthTotal.expense += release.value
+          }
+        }
+
+        monthTotal.distributeExpenses = distributeExpenses(releases, monthTotal.expense)
+
+        isNegative = monthTotal.balance < 0
+        if (isNegative) {
+          monthTotal.interest = calculateInterest(monthTotal.balance)
+          monthTotal.balance = round(monthTotal.balance + interest)
+        } else {
+          monthTotal.income = calculateIncome(monthTotal.balance)
+          monthTotal.balance = round(monthTotal.balance + income)
+        }
+        return monthTotal 
       }
 
       initialBalance = 0
       month1 = "Janeiro"
       januaryReleases = [
-        { category: "Salário", type: "revenue", value: 3000 }, 
-        { category: "Aluguel", type: "expense", value: 1000 }, 
-        { category: "Conta de Luz", type: "expense", value: 200 }, 
-        { category: "Conta de Água", type: "expense", value: 100 }, 
-        { category: "Internet", type: "expense", value: 100 }, 
-        { category: "Transporte", type: "expense", value: 300 }, 
-        { category: "Lazer", type: "expense", value: 300 }, 
-        { category: "Alimentação", type: "expense", value: 500 }, 
-        { category: "Condomínio", type: "expense", value: 300 }, 
-        { category: "Farmácia", type: "expense", value: 100 }
+        new Release("Salário","revenue", 3000), 
+        new Release("Aluguel","expense", 1000), 
+        new Release("Conta de Luz", "expense", 200), 
+        new Release("Conta de Água", "expense", 100), 
+        new Release("Internet", "expense", 100), 
+        new Release("Transporte", "expense", 300), 
+        new Release("Lazer", "expense", 300), 
+        new Release("Alimentação", "expense", 500), 
+        new Release("Condomínio", "expense", 300), 
+        new Release("Farmácia", "expense", 100)
       ]
-      balance1 = calculateBalance(month1, initialBalance, januaryReleases)
-      console.log(balance1)
+      monthTotal1 = calculateBalance(month1, initialBalance, januaryReleases)
+      console.log(monthTotal1)
 
       month2 = "Fevereiro"
       februaryReleases = [
-        { category: "Salário", type: "revenue", value: 3000 }, 
-        { category: "Aluguel", type: "expense", value: 1200 }, 
-        { category: "Conta de Luz", type: "expense", value: 250 }, 
-        { category: "Conta de Água", type: "expense", value: 100 }, 
-        { category: "Internet", type: "expense", value: 100 }, 
-        { category: "Transporte", type: "expense", value: 500 }, 
-        { category: "Alimentação", type: "expense", value: 1000 }, 
-        { category: "Condomínio", type: "expense", value: 400 }
+        new Release("Salário", "revenue", 3000), 
+        new Release("Aluguel", "expense", 1200), 
+        new Release("Conta de Luz", "expense", 250), 
+        new Release("Conta de Água", "expense", 100), 
+        new Release("Internet", "expense", 100), 
+        new Release("Transporte", "expense", 500), 
+        new Release("Alimentação", "expense", 1000), 
+        new Release("Condomínio", "expense", 400)
       ]
-      balance2 = calculateBalance(month2, balance1, februaryReleases)
-      console.log(balance2)
+      monthTotal2 = calculateBalance(month2, monthTotal1.balance, februaryReleases)
+      console.log(monthTotal2)
 
       month3 = "Março"
       marchReleases = [
-        { category: "Salário", type: "revenue", value: 4000 }, 
-        { category: "Aluguel", type: "expense", value: 1200 }, 
-        { category: "Conta de Luz", type: "expense", value: 200 }, 
-        { category: "Conta de Água", type: "expense", value: 100 }, 
-        { category: "Internet", type: "expense", value: 200 }, 
-        { category: "Transporte", type: "expense", value: 500 }, 
-        { category: "Lazer", type: "expense", value: 800 }, 
-        { category: "Alimentação", type: "expense", value: 1000 }, 
-        { category: "Condomínio", type: "expense", value: 400 }
+        new Release("Salário", "revenue", 4000), 
+        new Release("Aluguel", "expense", 1200), 
+        new Release("Conta de Luz", "expense", 200), 
+        new Release("Conta de Água", "expense", 100), 
+        new Release("Internet", "expense", 200), 
+        new Release("Transporte", "expense", 500), 
+        new Release("Lazer", "expense", 800), 
+        new Release("Alimentação", "expense", 1000), 
+        new Release("Condomínio", "expense", 400)
       ]
-      balance3 = calculateBalance(month3, balance2, marchReleases)
-      console.log(balance3)
+      monthTotal3 = calculateBalance(month3, monthTotal2.balance, marchReleases)
+      console.log(monthTotal3)
 
-      annualBalance = balance3
+      annualBalance = monthTotal3
       console.log("Balanço anual")
       console.log(annualBalance)
     </script>
